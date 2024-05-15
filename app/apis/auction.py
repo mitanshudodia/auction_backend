@@ -21,8 +21,8 @@ async def create_auction(
 ) -> Auction:
     seller_data: sellers.Seller = await seller_crud.crud.get_by_id(db=db, id=seller["id"])
     timezone = seller_data.timezone
-    # auction.start_time = await convert_to_utc(timezone=timezone, date_time=auction.start_time)
-    # auction.end_time = await convert_to_utc(timezone=timezone, date_time=auction.end_time)
+    auction.start_time = await convert_to_utc(timezone=timezone, date_time=auction.start_time)
+    auction.end_time = await convert_to_utc(timezone=timezone, date_time=auction.end_time)
     result = await auction_crud.crud.start_auction(db=db, auction=auction)
     result.start_time = await convert_from_utc_to_local(local_timezone=timezone, utc_time=result.start_time)
     result.end_time = await convert_from_utc_to_local(local_timezone=timezone, utc_time=result.end_time)
@@ -40,7 +40,7 @@ async def get_active_auctions( db: Session = Depends(get_db), seller=Depends(get
     timezone = seller_data.timezone
     all_auctions = await auction_crud.crud.get_open_auction(db=db)
     active_auctions: List[Auction] = []
-    current_time = datetime.datetime.now(pytz.UTC).replace(tzinfo=None)
+    current_time = datetime.datetime.now(pytz.UTC)
     for auction in all_auctions:
         if auction.start_time <= current_time and current_time <= auction.end_time:
             auction.start_time = await convert_from_utc_to_local(local_timezone=timezone, utc_time=auction.start_time)

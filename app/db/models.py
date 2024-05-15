@@ -60,8 +60,8 @@ class AuctionGood(Base):
 
     id = Column(Integer, primary_key=True)
     description = Column(String, nullable=False)
-    start_time = Column(DateTime, nullable=False)
-    end_time = Column(DateTime, nullable=False)
+    start_time = Column(DateTime(timezone=True), nullable=False)
+    end_time = Column(DateTime(timezone=True), nullable=False)
     closed = Column(Boolean, default=False)
     initial_price = Column(Float, nullable=False)
     sold_price = Column(Float)

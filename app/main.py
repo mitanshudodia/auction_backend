@@ -20,7 +20,7 @@ db = SessionLocal()
 
 async def check_auctions():
     all_open_auctions = await auction_crud.crud.get_open_auction(db=db)
-    current_time = datetime.datetime.now(pytz.UTC).replace(tzinfo=None)
+    current_time = datetime.datetime.now(pytz.UTC)
     for auction in all_open_auctions:
         if auction.end_time <= current_time:
             all_bids_for_auction = await bid_crud.crud.get_by_auction_id(db=db, auction_id=auction.id)

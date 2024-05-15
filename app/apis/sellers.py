@@ -26,7 +26,6 @@ async def create_seller(
 async def get_seller(
     email: str, db: Session = Depends(get_db)
 ) -> Seller:
-    print(email)
     final_seller = await seller_crud.crud.get_by_email(db=db, email=email)
     return final_seller
 
@@ -35,7 +34,6 @@ async def get_seller(
 )
 async def seller_login(seller: SellerLogin, db: Session = Depends(get_db)):
     seller_info = await seller_crud.crud.get_by_email(db=db, email=seller.email)
-    print(seller_info)
     if not seller_info:
         return "unauthorized"
     if seller_info.password == seller.password:

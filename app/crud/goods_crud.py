@@ -31,7 +31,6 @@ class CrudGoods():
             data = goods.copy()
         else:
             data = goods.model_dump(exclude_unset=True)
-        print(data)
         db_data = db.query(models.Good).get(goods.id)
         for field, value in data.items():
             if hasattr(db_data, field) and value:

@@ -9,12 +9,10 @@ from sqlalchemy.orm import Session
 
 class CrudAuction():
     async def start_auction(self, db: Session, auction: Union[auctions.AuctionCreate, Dict[str, Any]]):
-        print(auction)
         if isinstance(auction, dict):
             auction_data = auction.copy()
         else:
             auction_data = auction.model_dump(exclude_unset=True)
-        print(auction)
         db_auction = models.AuctionGood(**auction_data)
         db.add(db_auction)
         db.commit()
