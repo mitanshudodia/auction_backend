@@ -1,10 +1,14 @@
 from fastapi import Depends
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import jwt
 
 SECRET_KEY = "port2portbackendtotemsecretkey"
 ALGORITHM = "HS256"
 oauth_scheme = HTTPBearer()
+
+
 
 
 def create_jwt_token(id: int, email: str, is_seller:bool = False):

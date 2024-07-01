@@ -30,10 +30,12 @@ async def get_buyer(
 @router.post(
     "/login",
 )
-async def buyer_login(buyer: BuyerLogin, db: Session = Depends(get_db)) -> str:
-    buyuer_info = await buyer_crud.crud.get_by_email(db=db, email=buyer.email)
-    if len(buyuer_info) == 0:
+async def buyer_login(buyer: BuyerLogin, db: Session = Depends(get_db)):
+    buyer_info = await buyer_crud.crud.get_by_email(db=db, email=buyer.email)
+    if len(buyer_info) == 0:
         raise HTTPException(404, "User not found")
-    if buyuer_info[0].password == buyer.password:
-        token = create_jwt_token(buyuer_info[0].id, buyuer_info[0].password)
-        return token
+    if buyer_info[0].password == buyer.password:
+        token = create_jwt_token(buyer_info[0].id, buyer_info[0].password)
+        returnVar = buyer_info[0]
+        returnVar.token = token
+        return returnVar

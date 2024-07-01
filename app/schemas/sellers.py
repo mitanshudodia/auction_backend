@@ -4,15 +4,14 @@ from pydantic import BaseModel, EmailStr
 
 class SellerCreate(BaseModel):
     name: str
+    companyName: str
+    officeAddress: str
     email: EmailStr
-    timezone: str
     contact: int
-    rating: float
     password: str
 
 class SellerUpdate(BaseModel):
     id: int
-    timezone: str
     contact: int
     rating: float
 
@@ -24,10 +23,11 @@ class Seller(BaseModel):
     id: int
     name: str
     email: EmailStr
-    timezone: str
+    officeAddress: str
     contact: int
     rating: Optional[float]
     password: str
+    companyName: str
 
     class Config:
         orm_mode = True

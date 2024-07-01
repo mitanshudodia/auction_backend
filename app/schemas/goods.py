@@ -27,9 +27,10 @@ class Goods(BaseModel):
     name: str
     description: str
     company_name: str
-    category_id: int
     seller_id: int
+    category_id: int
+    document_link: str
     images_link: Optional[str]
-
+    specs: str
     class Config:
         orm_mode = True

@@ -2,6 +2,7 @@
 import datetime
 import uvicorn
 from fastapi import Depends, FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 import pytz
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from dependencies import get_db
@@ -11,6 +12,16 @@ from crud import auction_crud, bid_crud
 from apis.router import final_router
 
 app = FastAPI()
+origins = ["http://localhost:3000"]  # Replace with your frontend origin(s)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,  # Set to True if cookies are needed
+    allow_methods=["*"],  # Allow all methods (GET, POST, etc.)
+    allow_headers=["*"],  # Allow all headers (Content-Type, etc.)
+)
+
+
 scheduler = AsyncIOScheduler()
 
 app.include_router(final_router)
@@ -52,4 +63,4 @@ def get_timezones():
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="127.0.0.1", port=8000)

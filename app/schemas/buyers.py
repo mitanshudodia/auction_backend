@@ -3,15 +3,13 @@ from typing import Optional
 from pydantic import BaseModel, EmailStr
 
 class BuyerCreate(BaseModel):
-    username: str
     email: EmailStr
-    timezone: str
-    full_name: str
     password: str
+    name: str
+    Address: str
 
 class BuyerUpdate(BaseModel):
     id: int
-    timezone: str
     full_name: int
 
 class BuyerDelete(BaseModel):
@@ -20,11 +18,10 @@ class BuyerDelete(BaseModel):
 
 class Buyer(BaseModel):
     id: int
-    username: str
     email: EmailStr
-    timezone: str
-    full_name: str
     password: str
+    name: str
+    Address: str
 
     class Config:
         orm_mode = True

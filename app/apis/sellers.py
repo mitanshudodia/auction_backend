@@ -38,7 +38,8 @@ async def seller_login(seller: SellerLogin, db: Session = Depends(get_db)):
         return "unauthorized"
     if seller_info.password == seller.password:
         token = create_jwt_token(seller_info.id, seller_info.password, is_seller=True)
-        return token
+        seller_info.token = token;
+        return seller_info
     else:
         return {"msg": "unauthorized"}
 

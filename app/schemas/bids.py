@@ -5,12 +5,13 @@ from pydantic import BaseModel, EmailStr
 class BidsCreate(BaseModel):
     bid_amount: float
     auction_good_id: int
+    seller_id: int
 
 class BidderInfo(BaseModel):
     id: int
     seller_id: int
-    seller_name: str
     bid_amount: float
+    buyer_id: int
 
 class Bid(BaseModel):
     id: int

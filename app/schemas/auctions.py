@@ -1,16 +1,18 @@
 from datetime import datetime
 from typing import Optional
 from dateutil.parser import parse
+from datetime import datetime, date, time
 
 from pydantic import BaseModel, EmailStr, NaiveDatetime, FutureDatetime, field_validator
 
 class AuctionCreate(BaseModel):
-    description: str
-    start_time: datetime
+    start_time: str
     end_time: datetime
     initial_price: float
     good_id: int
-
+    seller_id: int
+    lot_size: int
+    start_date: str
     # @field_validator('start_time', mode="after")
     # def parse_start_date(cls, value):
     #     return parse(value)
@@ -26,7 +28,7 @@ class AuctionUpdate(BaseModel):
     start_time: datetime
     end_time: datetime
     initial_price: float
-    
+    lot_size: int
     # @field_validator('start_time', mode="after")
     # def parse_start_date(cls, value):
     #     return parse(value)
@@ -42,7 +44,6 @@ class AuctionGetorDelete(BaseModel):
 
 class Auction(BaseModel):
     id: int
-    description: str
     start_time: datetime
     end_time: datetime
     closed: Optional[bool] = False
@@ -50,7 +51,8 @@ class Auction(BaseModel):
     sold_price: Optional[float]
     good_id: int
     winner_id: Optional[int]
-
+    seller_id: int
+    lot_size: int
     # @field_validator('start_time', mode="after")
     # def parse_start_date(cls, value):
     #     return parse(value)

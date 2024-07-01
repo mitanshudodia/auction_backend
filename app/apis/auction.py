@@ -3,7 +3,7 @@ from typing import List, Awaitable
 from fastapi import APIRouter, Depends
 from dependencies import get_db
 from schemas.auctions import Auction, AuctionCreate, AuctionGetorDelete, AuctionUpdate
-from schemas import sellers
+from schemas import sellers, bids
 from sqlalchemy.orm import Session
 from crud import auction_crud, seller_crud
 from authentication import get_current_user
@@ -20,14 +20,11 @@ async def create_auction(
     auction: AuctionCreate, db: Session = Depends(get_db), seller=Depends(get_current_user)
 ) -> Auction:
     seller_data: sellers.Seller = await seller_crud.crud.get_by_id(db=db, id=seller["id"])
-    timezone = seller_data.timezone
-    auction.start_time = await convert_to_utc(timezone=timezone, date_time=auction.start_time)
-    auction.end_time = await convert_to_utc(timezone=timezone, date_time=auction.end_time)
+    start_date = auction.start_date
+    start_time = auction.start_time
+    auction.start_time = start_date + " " +start_time
+    auction.end_time = auction.end_time
     result = await auction_crud.crud.start_auction(db=db, auction=auction)
-    result.start_time = await convert_from_utc_to_local(local_timezone=timezone, utc_time=result.start_time)
-    result.end_time = await convert_from_utc_to_local(local_timezone=timezone, utc_time=result.end_time)
-    result.start_time = result.start_time.isoformat()
-    result.end_time = result.end_time.isoformat()
     return result
 
 @router.get(
@@ -63,3 +60,11 @@ async def good_update(auction: AuctionUpdate, db: Session= Depends(get_db), sell
                 auction.end_time = await convert_to_utc(timezone=timezone, date_time=auction.end_time)
         current_data = await auction_crud.crud.update_auction(db=db, auction=auction, seller_id=seller["id"])
         return current_data
+
+@router.get("/getSellerStatistics")
+async def get_seller_statistics_route(seller_id: int, db: Session = Depends(get_db)):
+    return await auction_crud.crud.get_seller_statistics(db, seller_id)
+
+@router.get("/getSellerAuctionData")
+async def get_seller_auction_data(seller_id: int, db: Session = Depends(get_db)):
+    return await auction_crud.crud.get_seller_auction_data(db, seller_id)

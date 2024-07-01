@@ -74,6 +74,8 @@ def upgrade() -> None:
     sa.Column('sold_price', sa.Float(), nullable=True),
     sa.Column('good_id', sa.Integer(), nullable=True),
     sa.Column('winner_id', sa.Integer(), nullable=True),
+    sa.Column('seller_id', sa.Integer(), nullable=True),
+
     sa.ForeignKeyConstraint(['good_id'], ['goods.id'], ),
     sa.ForeignKeyConstraint(['winner_id'], ['buyers.id'], ),
     sa.PrimaryKeyConstraint('id')
