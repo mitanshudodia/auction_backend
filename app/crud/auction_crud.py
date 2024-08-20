@@ -9,6 +9,7 @@ from schemas import auctions, bids, goods
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, func, select
+from datetime import datetime
 
 class CrudAuction():
     async def start_auction(self, db: Session, auction: Union[auctions.AuctionCreate, Dict[str, Any]]):
@@ -27,7 +28,7 @@ class CrudAuction():
         return result
 
     async def get_auctions_to_close(self, db: Session) -> List[auctions.Auction]:
-        now = datetime.datetime.utcnow()
+        now = datetime.now()
         result = db.query(models.AuctionGood) \
             .where(models.AuctionGood.end_time <= now.strftime('%Y-%m-%d %H:%M:%S')) \
             .filter_by(closed=False).all()
@@ -217,4 +218,13 @@ class CrudAuction():
         db.refresh(new_transaction)
         return new_transaction
 
+    def update_auction_good_end_time(self, db: Session, auction_good_id: int):
+        auction_good = db.query(models.AuctionGood).filter(models.AuctionGood.id == auction_good_id).first()
+    
+        if not auction_good:
+            raise HTTPException(status_code=404, detail="Auction good not found")
+    
+        auction_good.end_time = datetime.now()
+        db.commit()
+        return {"message": "End time updated successfully", "new_end_time": auction_good.end_time}
 crud = CrudAuction()

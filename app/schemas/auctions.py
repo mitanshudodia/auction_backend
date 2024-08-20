@@ -66,6 +66,10 @@ class AddBidTransactionRequest(BaseModel):
     amount: float
     transaction_id: str
     transaction_type: str
+    
+class UpdateEndTimeRequest(BaseModel):
+    auction_good_id: int
+
 
 
     class Config:

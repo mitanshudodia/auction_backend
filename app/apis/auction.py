@@ -2,7 +2,7 @@ import datetime
 from typing import List, Awaitable
 from fastapi import APIRouter, Depends
 from dependencies import get_db
-from schemas.auctions import Auction, AuctionCreate, AuctionGetorDelete, AuctionUpdate, AddBidTransactionRequest
+from schemas.auctions import Auction, AuctionCreate, AuctionGetorDelete, AuctionUpdate, AddBidTransactionRequest, UpdateEndTimeRequest
 from schemas import sellers, bids
 from sqlalchemy.orm import Session
 from crud import auction_crud, seller_crud, buyer_crud
@@ -125,3 +125,13 @@ async def add_bid_transaction(request: AddBidTransactionRequest, db: Session = D
         }
     }
 
+
+@router.post("/auction-goods/update-end-time")
+def update_auction_good_end_time(
+    request: UpdateEndTimeRequest,
+    db: Session = Depends(get_db)
+):
+    print(request.auction_good_id)
+    response = auction_crud.crud.update_auction_good_end_time(db, request.auction_good_id)
+    return response
+    

@@ -16,6 +16,8 @@ class Buyer(Base):
     bids = relationship("Bid", back_populates="buyer")
     address = Column(String)
     balance = Column(Float)
+    reset_token = Column(String)
+    reset_token_expiration = Column(DateTime(timezone=False))
 
 class Seller(Base):
     __tablename__  = "sellers"
@@ -30,7 +32,7 @@ class Seller(Base):
     officeAddress = Column(String, nullable=False)
     goods = relationship("Good", back_populates="seller")
     reset_token = Column(String)
-    reset_token_expiration = Column(DateTime(timezone=True))
+    reset_token_expiration = Column(DateTime(timezone=False))
 
 class Category(Base):
     __tablename__  = "categories"
@@ -54,6 +56,7 @@ class Good(Base):
     category = relationship("Category", back_populates="goods")
     seller = relationship("Seller", back_populates="goods")
     auction_goods = relationship("AuctionGood", back_populates="good")
+
 
 class AuctionGood(Base):
     __tablename__ = "auction_goods"

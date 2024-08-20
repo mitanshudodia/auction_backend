@@ -37,3 +37,10 @@ class BuyerGetId(BaseModel):
 class BuyerLogin(BaseModel):
     email: EmailStr
     password: str
+    
+class EmailSchema(BaseModel):
+    email: EmailStr
+
+class ResetSchema(BaseModel):
+    token: str
+    new_password: str

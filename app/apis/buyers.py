@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from dependencies import get_db
-from schemas.buyers import Buyer, BuyerCreate, BuyerGet, BuyerLogin, BuyerGetId
+from schemas.buyers import Buyer, BuyerCreate, BuyerGet, BuyerLogin, BuyerGetId, EmailSchema, ResetSchema
 from schemas.address import AddressCreate
 from schemas import address
 from schemas.transaction import IncrementBalanceRequest
@@ -8,7 +8,75 @@ from sqlalchemy.orm import Session
 from crud import buyer_crud, transaction_crud
 from authentication import create_jwt_token
 from db import models
+import secrets
+from datetime import datetime, timedelta
+from fastapi_mail import FastMail, MessageSchema, ConnectionConfig
+
+
 router = APIRouter(prefix="/buyer")
+
+conf = ConnectionConfig(
+    MAIL_USERNAME="rishadgandhy@toteminteractive.in",
+    MAIL_PASSWORD="Interactive@2024",
+    MAIL_FROM="rishadgandhy@toteminteractive.in",
+    MAIL_PORT=465,
+    MAIL_SERVER="toteminteractive.in",
+    MAIL_STARTTLS=False,
+    MAIL_SSL_TLS=True,
+    USE_CREDENTIALS=True,   
+    VALIDATE_CERTS=True
+)
+async def send_reset_email(email: str, token: str):
+    reset_link = f"http://localhost:3000/buyer/change-password/{token}"
+    
+    message = MessageSchema(
+        subject="Password Reset",
+        recipients=[email],
+        body=f"Click the following link to reset your password: {reset_link}",
+        subtype="html"
+    )
+
+    fm = FastMail(conf)
+    await fm.send_message(message)
+
+def create_reset_token(db: Session, buyer: Buyer):
+    token = secrets.token_urlsafe(32)
+    expiration = datetime.utcnow() + timedelta(hours=1)
+    buyer.reset_token = token
+    buyer.reset_token_expiration = expiration
+    db.commit()
+    
+    return token
+
+@router.post("/request-password-reset")
+async def request_password_reset(email_schema: EmailSchema, db: Session = Depends(get_db)):
+    buyer = db.query(models.Buyer).where(models.Buyer.email == email_schema.email).first()
+    
+    if buyer is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    token = create_reset_token(db, buyer)
+    #seller.reset_token = token
+    db.commit()
+    await send_reset_email(buyer.email, token)
+    
+    return {"message": "Password reset email sent"}
+
+@router.post("/reset-password")
+async def reset_password(resetSchema: ResetSchema, db: Session = Depends(get_db)):
+    buyer = db.query(models.Buyer).where(models.Buyer.reset_token == resetSchema.token).first()
+    
+    if buyer is None or buyer.reset_token_expiration < datetime.utcnow():
+        raise HTTPException(status_code=400, detail="Invalid or expired token")
+    
+    # Here you would hash the new password and update the user's record
+    # user.password = hash_password(new_password)
+    buyer.password = resetSchema.new_password
+    buyer.reset_token = None
+    buyer.reset_token_expiration = None
+    db.commit()
+    
+    return {"message": "Password reset successfully"}
 
 
 @router.post(
