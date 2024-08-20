@@ -19,5 +19,11 @@ class Bid(BaseModel):
     auction_good_id: int
     buyer_id: int
 
+class UnholdAmountRequest(BaseModel):
+    auction_good_id: int
+    buyer_id: int
+    transaction_id: str
+
+
     class Config:
         orm_mode = True

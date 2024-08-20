@@ -38,3 +38,10 @@ class SellerGet(BaseModel):
 class SellerLogin(BaseModel):
     email: EmailStr
     password: str
+
+class EmailSchema(BaseModel):
+    email: EmailStr
+
+class ResetSchema(BaseModel):
+    token: str
+    new_password: str

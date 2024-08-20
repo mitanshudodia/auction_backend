@@ -14,7 +14,8 @@ class Buyer(Base):
     password = Column(String, nullable=False)
     auction_goods_won = relationship("AuctionGood", back_populates="winner")
     bids = relationship("Bid", back_populates="buyer")
-    Address = Column(String)
+    address = Column(String)
+    balance = Column(Float)
 
 class Seller(Base):
     __tablename__  = "sellers"
@@ -28,6 +29,8 @@ class Seller(Base):
     companyName = Column(String, nullable=False)
     officeAddress = Column(String, nullable=False)
     goods = relationship("Good", back_populates="seller")
+    reset_token = Column(String)
+    reset_token_expiration = Column(DateTime(timezone=True))
 
 class Category(Base):
     __tablename__  = "categories"
@@ -46,8 +49,8 @@ class Good(Base):
     # verification_code = Column(String, nullable=False)  ask @arjun wether its needed or not 
     category_id = Column(Integer, ForeignKey("categories.id"))
     seller_id = Column(Integer, ForeignKey("sellers.id"))
-    document_link = Column(String)
-    specs = Column(String)
+    document_link = Column(String, nullable=True)
+    specs = Column(String, nullable=True)
     category = relationship("Category", back_populates="goods")
     seller = relationship("Seller", back_populates="goods")
     auction_goods = relationship("AuctionGood", back_populates="good")
@@ -69,6 +72,7 @@ class AuctionGood(Base):
     seller_id = Column(Integer, ForeignKey('sellers.id'))
     lot_size = Column(Integer)
     start_date = Column(String)
+    amount_paid = Column(Boolean, default=False)
     
 class Bid(Base):
     __tablename__ = "bids"
@@ -77,6 +81,26 @@ class Bid(Base):
     bid_amount = Column(Float, nullable=False)
     auction_good_id = Column(Integer, ForeignKey("auction_goods.id"))
     buyer_id = Column(Integer, ForeignKey("buyers.id"))
-
     auction_good = relationship("AuctionGood", back_populates="bids")
     buyer = relationship("Buyer", back_populates="bids")
+
+class Transaction(Base):
+    __tablename__ = "transaction"
+
+    id = Column(Integer, primary_key=True)
+    transaction_id = Column(String, nullable=False)
+    amount = Column(Float, nullable=False)
+    transaction_type = Column(String)
+    auction_good = Column(Integer, ForeignKey("auction_goods.id"))
+    buyer = Column(Integer)
+    created_on = Column(DateTime(timezone=True))
+
+class Address(Base):
+    __tablename__ = "address_master"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    address_line_1 = Column(String)
+    address_line_2 = Column(String)
+    city = Column(String)
+    state = Column(String)
+    postal_code = Column(String)
+    buyer_id = Column(Integer)

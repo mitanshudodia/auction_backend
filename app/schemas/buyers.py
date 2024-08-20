@@ -6,7 +6,8 @@ class BuyerCreate(BaseModel):
     email: EmailStr
     password: str
     name: str
-    Address: str
+    address: str
+    
 
 class BuyerUpdate(BaseModel):
     id: int
@@ -21,13 +22,17 @@ class Buyer(BaseModel):
     email: EmailStr
     password: str
     name: str
-    Address: str
+    address: str
+    balance: float
 
     class Config:
         orm_mode = True
 
 class BuyerGet(BaseModel):
     email: str
+
+class BuyerGetId(BaseModel):
+    id: int
 
 class BuyerLogin(BaseModel):
     email: EmailStr

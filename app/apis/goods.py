@@ -1,25 +1,52 @@
-from typing import Dict, Union
-from fastapi import APIRouter, Depends, HTTPException
+from typing import Dict, Union, Annotated, List
+from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Form
+import shutil
+import os
 from db.models import Good
 from dependencies import get_db
 from schemas.goods import Goods, GoodsCreate, GoodsGetorDelete, GoodsUpdate
+import datetime
 from sqlalchemy.orm import Session
 from crud import goods_crud
 from authentication import get_current_user
+import json
 
 router = APIRouter(prefix="/goods")
 
-@router.post(
-    "/",
-    response_model=Goods
-)
+@router.post("/")
 async def add_good(
-    good: GoodsCreate, db: Session = Depends(get_db), seller = Depends(get_current_user)
+    name: str = Form(...),
+    description: str = Form(...),
+    category_id: int = Form(...),
+    productLocation: str = Form(...),
+    productImages: List[UploadFile] = File(...),
+    db: Session = Depends(get_db),
+    seller = Depends(get_current_user)
 ) -> Union[Goods, Dict]:
-    if not seller["is_seller"]:
-        raise HTTPException(403, "Only Sellers can add the goods")
+    # Process and save images
+    saved_image_paths = []
+    for file in productImages:
+        print(file.filename)
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        file_extension = os.path.splitext(file.filename)[1]
+        file_name2 = os.path.splitext(file.filename)[0]
+        new_filename = f"{file_name2}{timestamp}{file_extension}"
+        file_path = os.path.join('C:\\Totem Server\\Port2PortV1\\public\\product_images', new_filename )
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        saved_image_paths.append(new_filename)
+    # Create the good in the database
+    good = GoodsCreate(
+        name=name,
+        description=description,
+        category_id=category_id,
+        location=productLocation,
+        images_link= json.dumps(saved_image_paths)
+    )
     result = await goods_crud.crud.create(db=db, goods=good, seller_id=seller["id"])
-    return result
+    return {
+    "Message" : "succsess"
+    }
 
 @router.get(
     "/",

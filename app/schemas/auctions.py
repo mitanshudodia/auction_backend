@@ -60,6 +60,13 @@ class Auction(BaseModel):
     # @field_validator('end_time', mode="after")
     # def parse_end_date(cls, value):
     #     return parse(value)
+class AddBidTransactionRequest(BaseModel):
+    auction_good_id: int
+    buyer_id: int
+    amount: float
+    transaction_id: str
+    transaction_type: str
+
 
     class Config:
         orm_mode = True

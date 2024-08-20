@@ -7,6 +7,7 @@ import pytz
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from dependencies import get_db
 from sqlalchemy.orm import Session
+from sqlalchemy import create_engine, func, select
 from crud import auction_crud, bid_crud
 
 from apis.router import final_router
@@ -30,23 +31,32 @@ db = SessionLocal()
 
 
 async def check_auctions():
-    all_open_auctions = await auction_crud.crud.get_open_auction(db=db)
+    all_open_auctions = await auction_crud.crud.get_auctions_to_close(db=db)
     current_time = datetime.datetime.now(pytz.UTC)
+    #for all the auctions
     for auction in all_open_auctions:
+        #if the auctions are closed
         if auction.end_time <= current_time:
+            #get the bids
             all_bids_for_auction = await bid_crud.crud.get_by_auction_id(db=db, auction_id=auction.id)
             if len(all_bids_for_auction) > 0:
+                #if there are bids in that auction
                 all_bids_for_auction.sort(key=lambda x: x.bid_amount, reverse=True)
+                #get the highest bid
                 highest_bid = all_bids_for_auction[0]
+                #update the auction table with the bids
                 auction.winner_id = highest_bid.buyer_id
                 auction.closed = True
                 auction.sold_price = highest_bid.bid_amount
                 db.add(auction)
                 db.commit()
                 db.refresh(auction)
+                print("Completed")
 
 
-scheduler.add_job(check_auctions, "interval", seconds=5)
+
+
+scheduler.add_job(check_auctions, "interval", seconds=10)
 
 @app.on_event("startup")
 async def startup_event():
