@@ -83,6 +83,6 @@ async def delete(good: GoodsGetorDelete, db: Session=Depends(get_db), seller = D
 @router.get(
     "/seller-goods"
 )
-async def get_by_user(db: Session = Depends(get_db), seller = Depends(get_current_user)):
-    current_data = await goods_crud.crud.get_by_user_id(db=db, user_id=seller["id"])
+async def get_by_user(seller_id: int, db: Session = Depends(get_db)):
+    current_data = await goods_crud.crud.get_by_user_id(db=db, user_id=seller_id)
     return current_data
