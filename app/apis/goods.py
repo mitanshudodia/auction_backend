@@ -62,11 +62,12 @@ async def get_good(
     "/",
     response_model=Goods
 )
-async def good_update(good: GoodsUpdate, db: Session= Depends(get_db), seller = Depends(get_current_user)):
-    good: Good = await goods_crud.crud.get_by_id(good.id)
+async def good_update(    name: str = Form(...),    description: str = Form(...),    category_id: int = Form(...),id: int = Form(...), db: Session= Depends(get_db), seller = Depends(get_current_user)):
+    good: Good = await goods_crud.crud.get_by_id(db,id)
+    good_id = id
     if good.seller_id != seller["id"]:
         raise HTTPException(403, "You are not Authorized to perform this action")
-    good = await goods_crud.crud.update(db=db, goods=good)
+    good = await goods_crud.crud.update(db, name, description, category_id, good_id)
     return good
 
 @router.delete(

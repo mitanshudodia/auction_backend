@@ -26,18 +26,15 @@ class CrudGoods():
         db.refresh(db_goods)
         return db_goods
 
-    async def update(self, db: Session, goods: Union[goods.GoodsUpdate, Dict[str, Any]]):
-        if isinstance(goods, dict):
-            data = goods.copy()
-        else:
-            data = goods.model_dump(exclude_unset=True)
-        db_data = db.query(models.Good).get(goods.id)
-        for field, value in data.items():
-            if hasattr(db_data, field) and value:
-                setattr(db_data, field, value)
+    async def update(self, db: Session, name: str, description: str, category_id: int, good_id: int):
+        goods = db.query(models.Good).get(good_id)
+        goods.name =name
+        goods.description = description
+        goods.category_id = category_id
         db.commit()
-        db.refresh(db_data)
-        return db_data
+        db.refresh(goods)
+        return goods
+
     
     async def delete(self, db: Session, goods: Union[goods.GoodsGetorDelete, Dict[str, Any]]):
         if goods.id:
